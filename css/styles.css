@@ -3624,7 +3624,7 @@ img.u-pull-left {
     outline : 0;
 }
 
-.folio-list__item-link:focus .folio-list__item-pic::before,
+/* .folio-list__item-link:focus .folio-list__item-pic::before,
 .folio-list__item-link:hover .folio-list__item-pic::before {
     opacity    : 1;
     visibility : visible;
@@ -3635,7 +3635,7 @@ img.u-pull-left {
     opacity    : 1;
     visibility : visible;
     transform  : scale(1);
-}
+} */
 
 .folio-list__item-link:focus .folio-list__item-text::before,
 .folio-list__item-link:hover .folio-list__item-text::before {
