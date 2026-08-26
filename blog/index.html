@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Notes — a blog</title>
+<meta name="description" content="Field Notes: short dispatches on things worth paying attention to.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <a class="mark" href="index.html">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 1L1 5.5V15H6V10H10V15H15V5.5L8 1Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+    </svg>
+    Field Notes
+  </a>
+  <h1 class="site-title">Dispatches, kept plainly.</h1>
+  <p class="site-tagline">A running log of essays and notes — most recent first. Every entry lives at its own page; this one just keeps the record.</p>
+</header>
+
+<div class="controls">
+  <div class="control-group">
+    <label for="topic-filter">Topic</label>
+    <select id="topic-filter">
+      <option value="all">All topics</option>
+    </select>
+  </div>
+
+  <div class="control-group">
+    <label for="year-filter">Date</label>
+    <select id="year-filter">
+      <option value="all">All time</option>
+    </select>
+  </div>
+
+  <div class="control-group">
+    <label for="sort-order">Sort</label>
+    <select id="sort-order">
+      <option value="newest">Newest first</option>
+      <option value="oldest">Oldest first</option>
+      <option value="title-az">Title, A&ndash;Z</option>
+    </select>
+  </div>
+
+  <p class="result-count" id="result-count" aria-live="polite"></p>
+</div>
+
+<main class="timeline" id="timeline">
+
+  <a class="entry" href="posts/post-3.html" data-topic="Craft" data-date="2026-08-22">
+    <div class="entry-date">
+      <span class="day">22</span>
+      <span class="month-year">Aug 2026</span>
+    </div>
+    <div>
+      <div class="entry-meta">Craft</div>
+      <h2 class="entry-title">The case for writing things down slowly</h2>
+      <p class="entry-excerpt">Most note-taking systems optimize for capture speed. I've started to think that's exactly backwards — and that friction, used well, is a feature.</p>
+    </div>
+  </a>
+
+  <a class="entry" href="posts/post-2.html" data-topic="Fieldwork" data-date="2026-07-09">
+    <div class="entry-date">
+      <span class="day">09</span>
+      <span class="month-year">Jul 2026</span>
+    </div>
+    <div>
+      <div class="entry-meta">Fieldwork</div>
+      <h2 class="entry-title">Six hours on the ridge trail</h2>
+      <p class="entry-excerpt">Notes from a long walk that started as a shortcut and turned into the whole point of the day.</p>
+    </div>
+  </a>
+
+  <a class="entry" href="posts/post-1.html" data-topic="Notebook" data-date="2026-06-14">
+    <div class="entry-date">
+      <span class="day">14</span>
+      <span class="month-year">Jun 2026</span>
+    </div>
+    <div>
+      <div class="entry-meta">Notebook</div>
+      <h2 class="entry-title">Starting this, finally</h2>
+      <p class="entry-excerpt">Why a plain, dated log beats a polished blog with a publishing schedule I'd never keep.</p>
+    </div>
+  </a>
+
+  <a class="entry" href="posts/post-1.html" data-topic="Notebook" data-date="2025-02-07">
+    <div class="entry-date">
+      <span class="day">07</span>
+      <span class="month-year">Feb 2025</span>
+    </div>
+    <div>
+      <div class="entry-meta">Notebook</div>
+      <h2 class="entry-title">Test - date filter</p>
+    </div>
+  </a>
+
+  <a class="entry" href="posts/post-1.html" data-topic="Notebook" data-date="2025-05-27">
+    <div class="entry-date">
+      <span class="day">27</span>
+      <span class="month-year">May 2025</span>
+    </div>
+    <div>
+      <div class="entry-meta">Notebook</div>
+      <h2 class="entry-title">alphabetic sort test</p>
+    </div>
+  </a>
+
+  <p class="empty-state" id="empty-state" hidden>No entries match those filters. <button type="button" id="clear-filters">Clear filters</button></p>
+
+</main>
+
+<footer class="site-footer">
+  Field Notes · built with plain HTML &amp; CSS, one file per post.
+</footer>
+
+<script>
+(function () {
+  var timeline = document.getElementById('timeline');
+  var entries = Array.prototype.slice.call(timeline.querySelectorAll('.entry'));
+  var topicSelect = document.getElementById('topic-filter');
+  var yearSelect = document.getElementById('year-filter');
+  var sortSelect = document.getElementById('sort-order');
+  var resultCount = document.getElementById('result-count');
+  var emptyState = document.getElementById('empty-state');
+  var clearBtn = document.getElementById('clear-filters');
+
+  // Build topic + year options from what's actually on the page,
+  // so a new post with a new topic or year shows up automatically.
+  var topics = [];
+  var years = [];
+  entries.forEach(function (entry) {
+    var topic = entry.getAttribute('data-topic');
+    var year = entry.getAttribute('data-date').slice(0, 4);
+    if (topics.indexOf(topic) === -1) topics.push(topic);
+    if (years.indexOf(year) === -1) years.push(year);
+  });
+  topics.sort();
+  years.sort().reverse();
+
+  topics.forEach(function (topic) {
+    var opt = document.createElement('option');
+    opt.value = topic;
+    opt.textContent = topic;
+    topicSelect.appendChild(opt);
+  });
+  years.forEach(function (year) {
+    var opt = document.createElement('option');
+    opt.value = year;
+    opt.textContent = year;
+    yearSelect.appendChild(opt);
+  });
+
+  function apply() {
+    var topic = topicSelect.value;
+    var year = yearSelect.value;
+    var sort = sortSelect.value;
+
+    var visible = entries.filter(function (entry) {
+      var matchesTopic = topic === 'all' || entry.getAttribute('data-topic') === topic;
+      var matchesYear = year === 'all' || entry.getAttribute('data-date').slice(0, 4) === year;
+      return matchesTopic && matchesYear;
+    });
+
+    visible.sort(function (a, b) {
+      if (sort === 'oldest') {
+        return a.getAttribute('data-date').localeCompare(b.getAttribute('data-date'));
+      }
+      if (sort === 'title-az') {
+        var titleA = a.querySelector('.entry-title').textContent.trim().toLowerCase();
+        var titleB = b.querySelector('.entry-title').textContent.trim().toLowerCase();
+        return titleA.localeCompare(titleB);
+      }
+      // newest first (default)
+      return b.getAttribute('data-date').localeCompare(a.getAttribute('data-date'));
+    });
+
+    entries.forEach(function (entry) { entry.hidden = true; });
+    visible.forEach(function (entry) {
+      entry.hidden = false;
+      timeline.appendChild(entry);
+    });
+    timeline.appendChild(emptyState);
+
+    emptyState.hidden = visible.length !== 0;
+    resultCount.textContent = visible.length === entries.length
+      ? entries.length + ' entries'
+      : 'Showing ' + visible.length + ' of ' + entries.length + ' entries';
+  }
+
+  topicSelect.addEventListener('change', apply);
+  yearSelect.addEventListener('change', apply);
+  sortSelect.addEventListener('change', apply);
+  clearBtn.addEventListener('click', function () {
+    topicSelect.value = 'all';
+    yearSelect.value = 'all';
+    sortSelect.value = 'newest';
+    apply();
+  });
+
+  apply();
+})();
+</script>
+
+</body>
+</html>
